@@ -386,4 +386,19 @@ app.get('/admin/export-csv', async (req, res) => {
 app.get('/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🫒 OLIVALIA backend running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🫒 OLIVALIA backend running on port ${PORT}`);
+
+  // Verify email credentials on startup so misconfiguration is caught immediately
+  transporter.verify((err) => {
+    if (err) {
+      console.error('❌ EMAIL CONFIG ERROR — emails will NOT send:', err.message);
+      console.error('   Check GMAIL_USER and GMAIL_APP_PASS env vars in Render.');
+      console.error('   GMAIL_APP_PASS must be a 16-char Google App Password,');
+      console.error('   NOT your regular Gmail password.');
+      console.error('   Generate one at: https://myaccount.google.com/apppasswords');
+    } else {
+      console.log('✅ Email transporter ready — Gmail connection OK');
+    }
+  });
+});
