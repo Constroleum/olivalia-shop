@@ -1,2 +1,0 @@
-# olivalia-shop
-Webshop Olivalia
