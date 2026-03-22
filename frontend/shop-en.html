@@ -296,7 +296,7 @@ function renderProducts(filter = 'all') {
   grid.innerHTML = filtered.map(p => `
     <div class="product-card">
       <div class="product-img">
-        ${IMG_MAP[p.id] ? `<img src="${IMG_MAP[p.id]}" alt="${p.name}" style="width:100%;height:100%;object-fit:contain;padding:8px;">` : `<span>${p.emoji}</span>`}
+        ${IMG_MAP[p.id] ? `<img src="${IMG_MAP[p.id]}" alt="${p.name}" style="width:100%;height:auto;display:block;">` : `<span>${p.emoji}</span>`}
         ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
         ${p.stock === 0 ? `<span class="out-of-stock-badge">Out of stock</span>` : ''}
       </div>
@@ -491,7 +491,7 @@ function showSuccessScreen(orderId, email) {
 }
 
 function showMessage(msg, type) { const el = document.getElementById('payment-message'); el.textContent = msg; el.className = type; el.style.display = 'block'; }
-function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('sho
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
 document.addEventListener('DOMContentLoaded', () => { 
   renderProducts(); 
   document.getElementById('cartCount').textContent = cart.reduce((s,c) => s+c.qty, 0); 

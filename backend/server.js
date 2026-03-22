@@ -64,9 +64,9 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
         const adminMail = buildAdminEmail(order);
         await transporter.sendMail({
           from: `"OLIVALIA Shop" <${process.env.GMAIL_USER}>`,
-          to: process.env.GMAIL_USER,
+          to: 'constroleum@gmail.com',
           subject: adminMail.subject,
-          text: adminMail.text
+          html: adminMail.html
         });
         console.log('✅ Admin email sent');
       } catch (mailErr) {
@@ -204,34 +204,104 @@ function buildCustomerEmail(order, lang = 'hu') {
 }
 
 function buildAdminEmail(order) {
-  const itemList = order.items.map(i => `• ${i.name} (${i.format}) × ${i.qty}`).join('\n');
+  const itemRows = order.items.map(i => `
+    <tr>
+      <td style="padding:10px 14px;border-bottom:1px solid #e5e5e5;font-size:14px;">${i.name} (${i.format})</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #e5e5e5;font-size:14px;text-align:center;">${i.qty}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid #e5e5e5;font-size:14px;text-align:right;">${i.price ? i.price.toLocaleString('hu-HU') + ' Ft' : '€' + (i.priceEUR || '')}</td>
+    </tr>`).join('');
+
+  const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+  <div style="max-width:600px;margin:32px auto;background:#ffffff;border-radius:4px;overflow:hidden;border:1px solid #ddd;">
+
+    <!-- Header -->
+    <div style="background:#0A0A0A;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="color:#B8986A;font-size:20px;letter-spacing:6px;font-family:Georgia,serif;">OLIVALIA</div>
+      <div style="background:#B8986A;color:#000;font-size:11px;font-weight:bold;letter-spacing:2px;padding:6px 14px;border-radius:2px;">ÚJ RENDELÉS</div>
+    </div>
+
+    <!-- Order ref + date -->
+    <div style="background:#fafafa;padding:20px 32px;border-bottom:1px solid #e5e5e5;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:11px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Rendelésszám</div>
+        <div style="font-size:22px;color:#0A0A0A;letter-spacing:2px;font-family:Georgia,serif;">${order.orderId}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;color:#999;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Dátum</div>
+        <div style="font-size:14px;color:#333;">${new Date(order.createdAt).toLocaleString('hu-HU')}</div>
+      </div>
+    </div>
+
+    <div style="padding:28px 32px;">
+
+      <!-- Customer info -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:10px;color:#B8986A;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;font-weight:bold;">🙋 Vásárló adatai</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr><td style="padding:5px 0;color:#999;font-size:12px;width:120px;">Név</td><td style="padding:5px 0;font-size:14px;color:#222;font-weight:bold;">${order.customer.firstName} ${order.customer.lastName}</td></tr>
+          <tr><td style="padding:5px 0;color:#999;font-size:12px;">Email</td><td style="padding:5px 0;font-size:14px;color:#222;"><a href="mailto:${order.customer.email}" style="color:#B8986A;">${order.customer.email}</a></td></tr>
+          <tr><td style="padding:5px 0;color:#999;font-size:12px;">Telefon</td><td style="padding:5px 0;font-size:14px;color:#222;">${order.customer.phone || '—'}</td></tr>
+        </table>
+      </div>
+
+      <!-- Shipping address -->
+      <div style="background:#fafafa;border:1px solid #e5e5e5;border-radius:4px;padding:16px 20px;margin-bottom:24px;">
+        <div style="font-size:10px;color:#B8986A;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;font-weight:bold;">📦 Szállítási cím</div>
+        <div style="font-size:14px;color:#333;line-height:1.8;">
+          ${order.customer.firstName} ${order.customer.lastName}<br>
+          ${order.customer.address}<br>
+          ${order.customer.zip} ${order.customer.city}<br>
+          ${order.customer.country}
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:10px;color:#B8986A;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;font-weight:bold;">🫒 Rendelt termékek</div>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #e5e5e5;border-radius:4px;">
+          <thead>
+            <tr style="background:#fafafa;">
+              <th style="padding:10px 14px;text-align:left;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#999;font-weight:normal;">Termék</th>
+              <th style="padding:10px 14px;text-align:center;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#999;font-weight:normal;">Db</th>
+              <th style="padding:10px 14px;text-align:right;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#999;font-weight:normal;">Ár</th>
+            </tr>
+          </thead>
+          <tbody>${itemRows}</tbody>
+        </table>
+      </div>
+
+      <!-- Totals -->
+      <div style="border-top:2px solid #0A0A0A;padding-top:16px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:6px;">
+          <span>Szállítás</span><span>${order.shippingDisplay}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:20px;font-weight:bold;color:#0A0A0A;margin-top:8px;">
+          <span>Végösszeg</span><span style="color:#B8986A;">${order.totalDisplay}</span>
+        </div>
+      </div>
+
+      <!-- Stripe ID -->
+      <div style="margin-top:24px;padding:12px 16px;background:#fafafa;border:1px solid #e5e5e5;border-radius:4px;">
+        <span style="font-size:11px;color:#999;letter-spacing:1px;">Stripe Payment ID: </span>
+        <code style="font-size:11px;color:#666;">${order.paymentIntentId}</code>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="background:#0A0A0A;padding:16px 32px;text-align:center;">
+      <div style="color:#666;font-size:10px;letter-spacing:2px;">OLIVALIA · Constroleum Kft. · admin panel: olivalia-shop.onrender.com/admin.html</div>
+    </div>
+  </div>
+</body>
+</html>`;
+
   return {
-    subject: `🫒 Új rendelés: ${order.orderId} — ${order.customer.firstName} ${order.customer.lastName}`,
-    text: `
-OLIVALIA — ÚJ RENDELÉS
-======================
-Rendelésszám: ${order.orderId}
-Dátum: ${new Date(order.createdAt).toLocaleString('hu-HU')}
-Státusz: ${order.status}
-Fizetés: ${order.paymentIntentId}
-
-VÁSÁRLÓ
--------
-Név: ${order.customer.firstName} ${order.customer.lastName}
-Email: ${order.customer.email}
-Tel: ${order.customer.phone || '—'}
-Cím: ${order.customer.address}, ${order.customer.zip} ${order.customer.city}, ${order.customer.country}
-
-TERMÉKEK
---------
-${itemList}
-
-ÖSSZEGZÉS
----------
-Szállítás: ${order.shippingDisplay}
-Végösszeg: ${order.totalDisplay}
-Deviza: ${order.currency}
-    `
+    subject: `🫒 Új rendelés: ${order.orderId} — ${order.customer.firstName} ${order.customer.lastName} — ${order.totalDisplay}`,
+    html
   };
 }
 

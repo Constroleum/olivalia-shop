@@ -575,7 +575,7 @@ function renderProducts(filter = 'all') {
   grid.innerHTML = filtered.map(p => `
     <div class="product-card" data-id="${p.id}" data-brand="${p.brand}" data-container="${p.container}">
       <div class="product-img">
-        ${IMG_MAP[p.id] ? `<img src="${IMG_MAP[p.id]}" alt="${p.name}" style="width:100%;height:100%;object-fit:contain;padding:8px;">` : `<span>${p.emoji}</span>`}
+        ${IMG_MAP[p.id] ? `<img src="${IMG_MAP[p.id]}" alt="${p.name}" style="width:100%;height:auto;display:block;">` : `<span>${p.emoji}</span>`}
         ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
         ${p.stock === 0 ? `<span class="out-of-stock-badge">Elfogyott</span>` : ''}
       </div>
