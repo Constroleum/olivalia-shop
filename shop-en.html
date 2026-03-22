@@ -444,7 +444,7 @@ function closeModal() { document.getElementById('modalOverlay').classList.remove
 
 let stripe, cardElement;
 function initStripe(totalEUR) {
-  stripe = Stripe('pk_test_YOUR_STRIPE_PUBLISHABLE_KEY');
+  stripe = Stripe('pk_test_51RaAHB2fUfWsCA0BGMXyAaR9UAN0AmOFfNZmq365PSZ2eLMX3jKCIGm3urDtNdxBaagVXnVTv9eAf2T2pxF9WcS000mmnmcHry');
   const elements = stripe.elements({ appearance: { theme: 'night', variables: { colorPrimary: '#B8986A', colorBackground: '#111111', colorText: '#F5F0E8' } } });
   cardElement = elements.create('card', { style: { base: { color: '#F5F0E8', fontFamily: 'Montserrat, sans-serif', fontSize: '14px', '::placeholder': { color: '#666' } } } });
   cardElement.mount('#card-element');
