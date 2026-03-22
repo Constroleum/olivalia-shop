@@ -124,13 +124,14 @@
       z-index: 2; position: relative;
     }
     .product-img {
-      height: 220px;
+      min-height: 120px;
       display: flex; align-items: center; justify-content: center;
       background: #f7f4ee;
       border-bottom: 1px solid rgba(184,152,106,0.15);
       font-size: 64px;
       position: relative; overflow: hidden;
     }
+    .product-img img { width: 100%; height: auto; display: block; }
     .product-img::after { display: none; }
     .product-badge {
       position: absolute; top: 12px; left: 12px;
@@ -744,22 +745,22 @@ function openCheckout() {
     <div class="form-section-title">Szállítási adatok</div>
     <div class="form-group">
       <div class="form-row">
-        <div><label>Keresztnév</label><input type="text" id="firstName" placeholder="Péter"></div>
-        <div><label>Vezetéknév</label><input type="text" id="lastName" placeholder="Kovács"></div>
+        <div><label>Keresztnév</label><input type="text" id="firstName" name="given-name" autocomplete="given-name" placeholder="Péter"></div>
+        <div><label>Vezetéknév</label><input type="text" id="lastName" name="family-name" autocomplete="family-name" placeholder="Kovács"></div>
       </div>
     </div>
-    <div class="form-group"><label>Email</label><input type="email" id="email" placeholder="pelda@email.hu"></div>
-    <div class="form-group"><label>Telefon</label><input type="tel" id="phone" placeholder="+36 20 123 4567"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="email" name="email" autocomplete="email" placeholder="pelda@email.hu"></div>
+    <div class="form-group"><label>Telefon</label><input type="tel" id="phone" name="tel" autocomplete="tel" placeholder="+36 20 123 4567"></div>
     <div class="form-group"><label>Ország</label>
-      <select id="country" onchange="updateShippingZone()">
+      <select id="country" name="country" autocomplete="country" onchange="updateShippingZone()">
         <option value="HU">🇭🇺 Magyarország</option>
         <option value="EU">🇪🇺 Európa</option>
       </select>
     </div>
-    <div class="form-group"><label>Cím</label><input type="text" id="address" placeholder="Fő utca 1."></div>
+    <div class="form-group"><label>Cím</label><input type="text" id="address" name="street-address" autocomplete="street-address" placeholder="Fő utca 1."></div>
     <div class="form-row">
-      <div class="form-group"><label>Város</label><input type="text" id="city" placeholder="Budapest"></div>
-      <div class="form-group"><label>Irányítószám</label><input type="text" id="zip" placeholder="1011"></div>
+      <div class="form-group"><label>Város</label><input type="text" id="city" name="address-level2" autocomplete="address-level2" placeholder="Budapest"></div>
+      <div class="form-group"><label>Irányítószám</label><input type="text" id="zip" name="postal-code" autocomplete="postal-code" placeholder="1011"></div>
     </div>
 
     <div class="form-section-title">Fizetési adatok</div>
