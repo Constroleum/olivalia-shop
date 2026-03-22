@@ -18,68 +18,6 @@ app.use(cors({
   ],
   credentials: true
 }));
-
-// ⚠️ WEBHOOK must be registered BEFORE express.json()
-// Stripe needs the raw, unparsed body to verify the signature.
-// If express.json() runs first, constructEvent() will throw "No signatures found".
-app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  const sig = req.headers['stripe-signature'];
-  let event;
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-  } catch (err) {
-    console.error('Webhook signature error:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  if (event.type === 'payment_intent.succeeded') {
-    const pi = event.data.object;
-    const orders = loadOrders();
-    const order = orders.find(o => o.paymentIntentId === pi.id);
-    if (order) {
-      order.status = 'paid';
-      order.paidAt = new Date().toISOString();
-      saveOrders(orders);
-      await exportToCSV();
-
-      const lang = order.currency === 'HUF' ? 'hu' : 'en';
-
-      // Email to customer
-      try {
-        await transporter.sendMail({
-          from: `"OLIVALIA" <${process.env.GMAIL_USER}>`,
-          to: order.customer.email,
-          subject: lang === 'hu'
-            ? `🫒 Rendelés visszaigazolás — ${order.orderId}`
-            : `🫒 Order Confirmation — ${order.orderId}`,
-          html: buildCustomerEmail(order, lang)
-        });
-        console.log(`✅ Customer email sent to ${order.customer.email}`);
-      } catch (mailErr) {
-        console.error('❌ Customer email failed:', mailErr.message);
-      }
-
-      // Email to admin
-      try {
-        const adminMail = buildAdminEmail(order);
-        await transporter.sendMail({
-          from: `"OLIVALIA Shop" <${process.env.GMAIL_USER}>`,
-          to: process.env.GMAIL_USER,
-          subject: adminMail.subject,
-          text: adminMail.text
-        });
-        console.log('✅ Admin email sent');
-      } catch (mailErr) {
-        console.error('❌ Admin email failed:', mailErr.message);
-      }
-    } else {
-      console.warn(`⚠️ Webhook: no order found for paymentIntentId ${pi.id}`);
-    }
-  }
-
-  res.json({ received: true });
-});
-
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
@@ -351,6 +289,52 @@ app.post('/api/create-payment-intent', async (req, res) => {
     console.error('Payment intent error:', error);
     res.status(500).json({ error: error.message });
   }
+});
+
+// STRIPE WEBHOOK — confirm payment & send emails
+app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'payment_intent.succeeded') {
+    const pi = event.data.object;
+    const orders = loadOrders();
+    const order = orders.find(o => o.paymentIntentId === pi.id);
+    if (order) {
+      order.status = 'paid';
+      order.paidAt = new Date().toISOString();
+      saveOrders(orders);
+      await exportToCSV();
+
+      const lang = order.currency === 'HUF' ? 'hu' : 'en';
+
+      // Email to customer
+      await transporter.sendMail({
+        from: `"OLIVALIA" <${process.env.GMAIL_USER}>`,
+        to: order.customer.email,
+        subject: lang === 'hu'
+          ? `🫒 Rendelés visszaigazolás — ${order.orderId}`
+          : `🫒 Order Confirmation — ${order.orderId}`,
+        html: buildCustomerEmail(order, lang)
+      });
+
+      // Email to admin
+      const adminMail = buildAdminEmail(order);
+      await transporter.sendMail({
+        from: `"OLIVALIA Shop" <${process.env.GMAIL_USER}>`,
+        to: process.env.GMAIL_USER,
+        subject: adminMail.subject,
+        text: adminMail.text
+      });
+    }
+  }
+
+  res.json({ received: true });
 });
 
 // ADMIN — get all orders
