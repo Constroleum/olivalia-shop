@@ -8,7 +8,16 @@ const path = require('path');
 const cors = require('cors');
 
 const app = express();
-app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
+app.use(cors({ 
+  origin: [
+    process.env.FRONTEND_URL,
+    'https://constroleum.github.io',
+    /\.github\.io$/,
+    'http://localhost:3000',
+    'http://127.0.0.1:5500'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 

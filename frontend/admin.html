@@ -117,7 +117,7 @@ let adminKey = '';
 let allOrders = [];
 let currentFilter = 'all';
 
-const API = window.location.origin;
+const API = 'https://olivalia-shop.onrender.com';
 
 async function login() {
   const key = document.getElementById('adminKey').value;
@@ -264,7 +264,7 @@ async function updateStatus(orderId, newStatus) {
 }
 
 async function exportCSV() {
-  window.open(`${API}/admin/export-csv?key=${adminKey}`, '_blank');
+  window.open(`https://olivalia-shop.onrender.com/admin/export-csv?key=${adminKey}`, '_blank');
 }
 
 // Auto-login from session
