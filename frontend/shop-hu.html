@@ -556,6 +556,7 @@ const PRODUCTS = [
 // ============================================================
 // STATE
 // ============================================================
+let PRODUCTS = [];
 let cart = JSON.parse(localStorage.getItem('olivalia_cart') || '[]');
 let currentFilter = 'all';
 
@@ -918,11 +919,24 @@ function showToast(msg) {
 }
 
 // ============================================================
-// INIT
-// ========
-document.addEventListener('DOMContentLoaded', () => {
-  renderProducts();
+// INIT — load products from backend then render
+// ============================================================
+document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('cartCount').textContent = cart.reduce((s, c) => s + c.qty, 0);
+  try {
+    const res = await fetch('/api/products');
+    const serverProducts = await res.json();
+    // Merge server stock+price into local product definitions (desc, emoji etc stay local)
+    PRODUCTS = PRODUCTS.map(p => {
+      const s = serverProducts.find(sp => sp.id === p.id);
+      return s ? { ...p, stock: s.stock, price: s.price } : p;
+    });
+    // If PRODUCTS is empty (first load), use server data directly with local desc fallback
+    if (PRODUCTS.length === 0) PRODUCTS = serverProducts;
+  } catch (e) {
+    console.warn('Could not load products from server, using local data', e);
+  }
+  renderProducts();
 });
 </script>
 </body>

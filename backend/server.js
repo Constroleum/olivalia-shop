@@ -41,6 +41,18 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       order.status = 'paid';
       order.paidAt = new Date().toISOString();
       saveOrders(orders);
+
+      // Deduct stock for each item
+      const products = loadProducts();
+      for (const item of order.items) {
+        const product = products.find(p => p.id === item.id);
+        if (product) {
+          product.stock = Math.max(0, product.stock - item.qty);
+          console.log(`📦 Stock deducted: product ${product.id} (${product.format}) → ${product.stock} remaining`);
+        }
+      }
+      saveProducts(products);
+
       await exportToCSV();
 
       const lang = order.currency === 'HUF' ? 'hu' : 'en';
@@ -94,6 +106,12 @@ if (!fs.existsSync(ORDERS_FILE)) fs.writeFileSync(ORDERS_FILE, '[]');
 
 function loadOrders() { return JSON.parse(fs.readFileSync(ORDERS_FILE, 'utf-8')); }
 function saveOrders(orders) { fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2)); }
+
+// ─── PRODUCT STORAGE ─────────────────────────────────────────────────────────
+const PRODUCTS_FILE = path.join(__dirname, 'data', 'products.json');
+
+function loadProducts() { return JSON.parse(fs.readFileSync(PRODUCTS_FILE, 'utf-8')); }
+function saveProducts(products) { fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2)); }
 
 // ─── ORDER REFERENCE GENERATOR ───────────────────────────────────────────────
 function generateOrderId() {
@@ -360,6 +378,26 @@ async function exportToCSV() {
 }
 
 // ─── ROUTES ───────────────────────────────────────────────────────────────────
+
+// PUBLIC — get all products (stock included)
+app.get('/api/products', (req, res) => {
+  res.json(loadProducts());
+});
+
+// ADMIN — update stock for a product
+app.patch('/admin/products/:id/stock', (req, res) => {
+  const key = req.headers['x-admin-key'];
+  if (key !== process.env.ADMIN_KEY) return res.status(401).json({ error: 'Unauthorized' });
+  const products = loadProducts();
+  const product = products.find(p => p.id === parseInt(req.params.id));
+  if (!product) return res.status(404).json({ error: 'Product not found' });
+  const newStock = parseInt(req.body.stock);
+  if (isNaN(newStock) || newStock < 0) return res.status(400).json({ error: 'Invalid stock value' });
+  product.stock = newStock;
+  saveProducts(products);
+  console.log(`📦 Stock updated: product ${product.id} (${product.name_hu} ${product.format}) → ${newStock}`);
+  res.json(product);
+});
 
 // CREATE PAYMENT INTENT
 app.post('/api/create-payment-intent', async (req, res) => {

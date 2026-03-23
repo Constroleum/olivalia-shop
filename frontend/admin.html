@@ -68,6 +68,23 @@
     .empty-state { text-align: center; padding: 60px; color: var(--text); font-size: 11px; letter-spacing: 2px; }
     .loading { text-align: center; padding: 40px; color: var(--text); }
     
+    .tab-nav { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid rgba(184,152,106,0.2); }
+    .tab-btn { padding: 10px 24px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text); font-family: 'Montserrat', sans-serif; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-bottom: -1px; }
+    .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .tab-btn:hover { color: var(--gold); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .stock-table { width: 100%; border-collapse: collapse; }
+    .stock-table th { text-align: left; padding: 10px 16px; font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); font-weight: 400; background: rgba(184,152,106,0.04); border-bottom: 1px solid rgba(184,152,106,0.15); }
+    .stock-table td { padding: 10px 16px; font-size: 12px; color: var(--text); border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+    .stock-table tr:hover td { background: rgba(184,152,106,0.03); }
+    .stock-input { width: 70px; background: rgba(255,255,255,0.05); border: 1px solid rgba(184,152,106,0.3); color: var(--white); font-family: 'Montserrat', sans-serif; font-size: 12px; padding: 4px 8px; text-align: center; outline: none; }
+    .stock-input:focus { border-color: var(--gold); }
+    .stock-save-btn { padding: 5px 12px; background: none; border: 1px solid rgba(184,152,106,0.4); color: var(--gold); font-family: 'Montserrat', sans-serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+    .stock-save-btn:hover { background: rgba(184,152,106,0.1); border-color: var(--gold); }
+    .stock-badge-low { color: #F0B429; font-weight: 500; }
+    .stock-badge-ok { color: #4CAF50; }
+    .stock-badge-zero { color: #CF6679; font-weight: 700; }
     @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } main { padding: 16px; } }
   </style>
@@ -98,17 +115,28 @@
   <main>
     <div class="stats-grid" id="statsGrid"></div>
 
-    <div class="section-title">Rendelések</div>
-    <div class="filters">
-      <button class="filter-tag active" onclick="filterOrders('all', this)">Összes</button>
-      <button class="filter-tag" onclick="filterOrders('pending', this)">Függőben</button>
-      <button class="filter-tag" onclick="filterOrders('paid', this)">Fizetve</button>
-      <button class="filter-tag" onclick="filterOrders('shipped', this)">Elküldve</button>
-      <button class="filter-tag" onclick="filterOrders('delivered', this)">Kézbesítve</button>
-      <button class="filter-tag" onclick="filterOrders('cancelled', this)">Lemondva</button>
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="showTab('orders', this)">Rendelések</button>
+      <button class="tab-btn" onclick="showTab('stock', this)">Készlet</button>
     </div>
 
-    <div id="ordersContainer"><div class="loading">Betöltés...</div></div>
+    <!-- ORDERS TAB -->
+    <div class="tab-panel active" id="tab-orders">
+      <div class="filters">
+        <button class="filter-tag active" onclick="filterOrders('all', this)">Összes</button>
+        <button class="filter-tag" onclick="filterOrders('pending', this)">Függőben</button>
+        <button class="filter-tag" onclick="filterOrders('paid', this)">Fizetve</button>
+        <button class="filter-tag" onclick="filterOrders('shipped', this)">Elküldve</button>
+        <button class="filter-tag" onclick="filterOrders('delivered', this)">Kézbesítve</button>
+        <button class="filter-tag" onclick="filterOrders('cancelled', this)">Lemondva</button>
+      </div>
+      <div id="ordersContainer"><div class="loading">Betöltés...</div></div>
+    </div>
+
+    <!-- STOCK TAB -->
+    <div class="tab-panel" id="tab-stock">
+      <div id="stockContainer"><div class="loading">Betöltés...</div></div>
+    </div>
   </main>
 </div>
 
@@ -265,6 +293,92 @@ async function updateStatus(orderId, newStatus) {
 
 async function exportCSV() {
   window.open(`https://olivalia-shop.onrender.com/admin/export-csv?key=${adminKey}`, '_blank');
+}
+
+// ── TAB NAVIGATION ────────────────────────────────────────────────────────────
+function showTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'stock') loadStock();
+}
+
+// ── STOCK MANAGEMENT ─────────────────────────────────────────────────────────
+let allProducts = [];
+
+async function loadStock() {
+  try {
+    const res = await fetch(`${API}/api/products`);
+    allProducts = await res.json();
+    renderStock();
+  } catch(e) {
+    document.getElementById('stockContainer').innerHTML = '<div class="empty-state">Nem sikerült betölteni a készletet.</div>';
+  }
+}
+
+function stockBadge(stock) {
+  if (stock === 0) return `<span class="stock-badge-zero">● ELFOGYOTT</span>`;
+  if (stock <= 3) return `<span class="stock-badge-low">● Kevés (${stock})</span>`;
+  return `<span class="stock-badge-ok">● ${stock} db</span>`;
+}
+
+function renderStock() {
+  if (!allProducts.length) {
+    document.getElementById('stockContainer').innerHTML = '<div class="empty-state">Nincsenek termékek.</div>';
+    return;
+  }
+  document.getElementById('stockContainer').innerHTML = `
+    <table class="stock-table">
+      <thead><tr>
+        <th>#</th>
+        <th>Márka</th>
+        <th>Termék</th>
+        <th>Kiszerelés</th>
+        <th>Ár (Ft)</th>
+        <th>Készlet</th>
+        <th>Módosítás</th>
+      </tr></thead>
+      <tbody>
+        ${allProducts.map(p => `
+          <tr id="stock-row-${p.id}">
+            <td style="color:#555;">${p.id}</td>
+            <td>${p.brand}</td>
+            <td style="color:var(--white);">${p.name_hu}</td>
+            <td>${p.format}</td>
+            <td style="color:var(--gold);">${p.price.toLocaleString('hu-HU')} Ft</td>
+            <td>${stockBadge(p.stock)}</td>
+            <td>
+              <input class="stock-input" type="number" min="0" id="stock-val-${p.id}" value="${p.stock}">
+              <button class="stock-save-btn" onclick="saveStock(${p.id})">Mentés</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function saveStock(productId) {
+  const input = document.getElementById(`stock-val-${productId}`);
+  const newStock = parseInt(input.value);
+  if (isNaN(newStock) || newStock < 0) { alert('Érvénytelen érték'); return; }
+  try {
+    const res = await fetch(`${API}/admin/products/${productId}/stock`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+      body: JSON.stringify({ stock: newStock })
+    });
+    if (!res.ok) throw new Error();
+    // Update local data and re-render badge
+    const p = allProducts.find(x => x.id === productId);
+    if (p) p.stock = newStock;
+    const row = document.getElementById(`stock-row-${productId}`);
+    if (row) row.cells[5].innerHTML = stockBadge(newStock);
+    input.style.borderColor = '#4CAF50';
+    setTimeout(() => input.style.borderColor = '', 1500);
+  } catch(e) {
+    alert('Mentési hiba – ellenőrizd a kapcsolatot.');
+  }
 }
 
 // Auto-login from session
