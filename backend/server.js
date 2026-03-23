@@ -48,7 +48,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       // Email to customer
       try {
         const { error } = await resend.emails.send({
-          from: 'OLIVALIA <onboarding@resend.dev>',
+          from: 'OLIVALIA <olivalia@constroleum.hu>',
           to: order.customer.email,
           subject: lang === 'hu'
             ? `🫒 Rendelés visszaigazolás — ${order.orderId}`
@@ -65,7 +65,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       try {
         const adminMail = buildAdminEmail(order);
         const { error } = await resend.emails.send({
-          from: 'OLIVALIA Shop <onboarding@resend.dev>',
+          from: 'OLIVALIA Shop <olivalia@constroleum.hu>',
           to: 'constroleum@gmail.com',
           subject: adminMail.subject,
           html: adminMail.html
@@ -455,6 +455,6 @@ app.listen(PORT, () => {
   if (!process.env.RESEND_API_KEY) {
     console.error('❌ EMAIL CONFIG ERROR — RESEND_API_KEY not set. Emails will NOT send.');
   } else {
-    console.log('✅ Resend API key found — email ready');
+    console.log('✅ Resend API key found — email ready (olivalia@constroleum.hu)');
   }
 });
