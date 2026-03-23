@@ -70,6 +70,7 @@
       width: 320px;
       margin-bottom: 8px;
       mix-blend-mode: screen;
+      filter: brightness(1.1);
     }
 
     /* Kill all browser default link colours */
@@ -116,7 +117,8 @@
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      padding: 28px 48px;
+      padding: 28px 0;
+      width: 180px;
       border: 1px solid rgba(184,152,106,0.3);
       background: transparent;
       cursor: pointer;
@@ -144,7 +146,9 @@
     }
 
     .lang-flag {
-      font-size: 28px;
+      width: 36px;
+      height: 26px;
+      display: block;
     }
 
     .lang-name {
@@ -176,8 +180,8 @@
     .corner-br { bottom: 32px; right: 32px; border-bottom: 1px solid var(--gold); border-right: 1px solid var(--gold); }
 
     @media (max-width: 600px) {
-      .lang-buttons { flex-direction: column; gap: 16px; }
-      .lang-btn { padding: 22px 40px; }
+      .lang-buttons { flex-direction: column; gap: 16px; align-items: center; }
+      .lang-btn { padding: 22px 0; width: 220px; }
     }
   </style>
 </head>
@@ -201,12 +205,24 @@
 
     <div class="lang-buttons">
       <a class="lang-btn" href="shop-hu.html">
-        <span class="lang-flag">🇭🇺</span>
+        <!-- Hungarian flag SVG -->
+        <svg class="lang-flag" viewBox="0 0 36 26" xmlns="http://www.w3.org/2000/svg">
+          <rect width="36" height="26" rx="2" fill="#fff"/>
+          <rect width="36" height="8.67" fill="#CE2939"/>
+          <rect y="17.33" width="36" height="8.67" fill="#477050"/>
+        </svg>
         <span class="lang-name">Magyar</span>
         <span class="lang-sub">Magyarország</span>
       </a>
       <a class="lang-btn" href="shop-en.html">
-        <span class="lang-flag">🇬🇧</span>
+        <!-- UK flag SVG -->
+        <svg class="lang-flag" viewBox="0 0 36 26" xmlns="http://www.w3.org/2000/svg">
+          <rect width="36" height="26" rx="2" fill="#012169"/>
+          <path d="M0,0 L36,26 M36,0 L0,26" stroke="#fff" stroke-width="4"/>
+          <path d="M0,0 L36,26 M36,0 L0,26" stroke="#C8102E" stroke-width="2.4"/>
+          <path d="M18,0 V26 M0,13 H36" stroke="#fff" stroke-width="6.5"/>
+          <path d="M18,0 V26 M0,13 H36" stroke="#C8102E" stroke-width="4"/>
+        </svg>
         <span class="lang-name">English</span>
         <span class="lang-sub">Europe</span>
       </a>
