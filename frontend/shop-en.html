@@ -64,6 +64,9 @@
     .product-footer { padding: 16px 24px 20px; border-top: 1px solid rgba(184,152,106,0.08); display: flex; align-items: center; justify-content: space-between; }
     .product-price { display: flex; flex-direction: column; gap: 2px; }
     .price-eur { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--gold); }
+    .price-original-eur { font-family: 'Cormorant Garamond', serif; font-size: 14px; color: #666; text-decoration: line-through; }
+    .price-discounted-eur { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: #CF6679; }
+    .discount-badge { position: absolute; top: 12px; right: 12px; background: rgba(207,102,121,0.85); color: #fff; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 10px; font-weight: 600; }
     .price-huf-small { font-size: 9px; letter-spacing: 1px; color: var(--text); }
     .price-stock { font-size: 9px; letter-spacing: 1px; color: var(--text); }
     .add-to-cart { padding: 10px 20px; background: none; border: 1px solid rgba(184,152,106,0.5); color: var(--gold); cursor: pointer; font-family: 'Montserrat', sans-serif; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; transition: all 0.3s; }
@@ -283,6 +286,36 @@ let PRODUCTS = [
 
 function toEUR(huf) { return (huf / EUR_RATE).toFixed(2); }
 
+// ── DISCOUNT HELPERS ─────────────────────────────────────────────────────────
+function calcDiscountedPriceHUF(priceHUF, discount) {
+  if (!discount) return null;
+  if (discount.type === 'percent') return Math.round(priceHUF * (1 - discount.value / 100));
+  if (discount.type === 'fixed')   return Math.max(0, priceHUF - discount.value);
+  return null;
+}
+function discountLabel(discount) {
+  if (!discount) return '';
+  if (discount.type === 'percent') return `-${discount.value}%`;
+  if (discount.type === 'fixed')   return `-${discount.value.toLocaleString('hu-HU')} Ft`;
+  return '';
+}
+function getEffectivePriceHUF(product) {
+  const disc = calcDiscountedPriceHUF(product.priceHUF, product.discount);
+  return disc !== null ? disc : product.priceHUF;
+}
+function renderPriceEN(p) {
+  const discHUF = calcDiscountedPriceHUF(p.priceHUF, p.discount);
+  if (discHUF !== null) {
+    return `
+      <div class="price-original-eur">€${toEUR(p.priceHUF)}</div>
+      <div class="price-discounted-eur">€${toEUR(discHUF)}</div>
+      <div class="price-huf-small">${discHUF.toLocaleString('hu-HU')} Ft</div>`;
+  }
+  return `
+    <div class="price-eur">€${toEUR(p.priceHUF)}</div>
+    <div class="price-huf-small">${p.priceHUF.toLocaleString('hu-HU')} Ft</div>`;
+}
+
 let cart = JSON.parse(localStorage.getItem('olivalia_cart_en') || '[]');
 let currentFilter = 'all';
 
@@ -298,6 +331,7 @@ function renderProducts(filter = 'all') {
       <div class="product-img">
         ${IMG_MAP[p.id] ? `<img src="${IMG_MAP[p.id]}" alt="${p.name}" style="width:100%;height:auto;display:block;">` : `<span>${p.emoji}</span>`}
         ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
+        ${p.discount ? `<span class="discount-badge">${discountLabel(p.discount)}</span>` : ''}
         ${p.stock === 0 ? `<span class="out-of-stock-badge">Out of stock</span>` : ''}
       </div>
       <div class="product-body">
@@ -308,8 +342,7 @@ function renderProducts(filter = 'all') {
       </div>
       <div class="product-footer">
         <div class="product-price">
-          <div class="price-eur">€${toEUR(p.priceHUF)}</div>
-          <div class="price-huf-small">${p.priceHUF.toLocaleString('hu-HU')} Ft</div>
+          ${renderPriceEN(p)}
           <div class="price-stock">Stock: ${getStock(p.id)} units</div>
         </div>
         <button class="add-to-cart" onclick="addToCart(${p.id}, event)"
@@ -367,7 +400,7 @@ function saveCart() {
   document.getElementById('cartCount').textContent = cart.reduce((s, c) => s + c.qty, 0);
 }
 
-function getCartTotalHUF() { return cart.reduce((s, c) => { const p = PRODUCTS.find(x => x.id === c.id); return s + (p ? p.priceHUF * c.qty : 0); }, 0); }
+function getCartTotalHUF() { return cart.reduce((s, c) => { const p = PRODUCTS.find(x => x.id === c.id); return s + (p ? getEffectivePriceHUF(p) * c.qty : 0); }, 0); }
 function getCartTotalEUR() { return (getCartTotalHUF() / EUR_RATE).toFixed(2); }
 const SHIPPING_EUR = 30;
 
@@ -387,7 +420,7 @@ function renderCart() {
           <button class="qty-btn" onclick="changeQty(${p.id}, +1)">+</button>
         </div>
       </div>
-      <div class="cart-item-price">€${toEUR(p.priceHUF * c.qty)}</div>
+      <div class="cart-item-price">€${toEUR(getEffectivePriceHUF(p) * c.qty)}</div>
     </div>`;
   }).join('');
   const totalEUR = parseFloat(getCartTotalEUR());

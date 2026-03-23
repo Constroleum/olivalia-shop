@@ -175,6 +175,21 @@
       font-family: 'Cormorant Garamond', serif;
       font-size: 22px; font-weight: 400; color: var(--gold);
     }
+    .price-original {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px; color: #666; text-decoration: line-through;
+    }
+    .price-discounted {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 400; color: #CF6679;
+    }
+    .discount-badge {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(207,102,121,0.85);
+      color: #fff; font-size: 9px; letter-spacing: 2px;
+      text-transform: uppercase; padding: 4px 10px;
+      font-weight: 600;
+    }
     .price-stock { font-size: 9px; letter-spacing: 1px; color: var(--text); }
     .add-to-cart {
       padding: 10px 20px;
@@ -561,6 +576,33 @@ let cart = JSON.parse(localStorage.getItem('olivalia_cart') || '[]');
 let currentFilter = 'all';
 
 // ============================================================
+// DISCOUNT HELPERS
+// ============================================================
+function calcDiscountedPrice(price, discount) {
+  if (!discount) return null;
+  if (discount.type === 'percent') return Math.round(price * (1 - discount.value / 100));
+  if (discount.type === 'fixed')   return Math.max(0, price - discount.value);
+  return null;
+}
+
+function discountLabel(discount) {
+  if (!discount) return '';
+  if (discount.type === 'percent') return `-${discount.value}%`;
+  if (discount.type === 'fixed')   return `-${discount.value.toLocaleString('hu-HU')} Ft`;
+  return '';
+}
+
+function renderPriceHU(p) {
+  const disc = calcDiscountedPrice(p.price, p.discount);
+  if (disc !== null) {
+    return `
+      <div class="price-original">${p.price.toLocaleString('hu-HU')} Ft</div>
+      <div class="price-discounted">${disc.toLocaleString('hu-HU')} Ft</div>`;
+  }
+  return `<div class="price-huf">${p.price.toLocaleString('hu-HU')} Ft</div>`;
+}
+
+// ============================================================
 // RENDER PRODUCTS
 // ============================================================
 function renderProducts(filter = 'all') {
@@ -578,6 +620,7 @@ function renderProducts(filter = 'all') {
       <div class="product-img">
         ${IMG_MAP[p.id] ? `<img src="${IMG_MAP[p.id]}" alt="${p.name}" style="width:100%;height:auto;display:block;">` : `<span>${p.emoji}</span>`}
         ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
+        ${p.discount ? `<span class="discount-badge">${discountLabel(p.discount)}</span>` : ''}
         ${p.stock === 0 ? `<span class="out-of-stock-badge">Elfogyott</span>` : ''}
       </div>
       <div class="product-body">
@@ -588,7 +631,7 @@ function renderProducts(filter = 'all') {
       </div>
       <div class="product-footer">
         <div class="product-price">
-          <div class="price-huf">${p.price.toLocaleString('hu-HU')} Ft</div>
+          ${renderPriceHU(p)}
           <div class="price-stock">Készlet: ${getStock(p.id)} db</div>
         </div>
         <button class="add-to-cart" onclick="addToCart(${p.id}, event)"
@@ -656,10 +699,15 @@ function saveCart() {
   document.getElementById('cartCount').textContent = cart.reduce((s, c) => s + c.qty, 0);
 }
 
+function getEffectivePrice(product) {
+  const disc = calcDiscountedPrice(product.price, product.discount);
+  return disc !== null ? disc : product.price;
+}
+
 function getCartTotal() {
   return cart.reduce((s, c) => {
     const p = PRODUCTS.find(x => x.id === c.id);
-    return s + (p ? p.price * c.qty : 0);
+    return s + (p ? getEffectivePrice(p) * c.qty : 0);
   }, 0);
 }
 
@@ -699,7 +747,7 @@ function renderCart() {
             <button class="qty-btn" onclick="changeQty(${p.id}, +1)">+</button>
           </div>
         </div>
-        <div class="cart-item-price">${(p.price * c.qty).toLocaleString('hu-HU')} Ft</div>
+        <div class="cart-item-price">${(getEffectivePrice(p) * c.qty).toLocaleString('hu-HU')} Ft</div>
       </div>`;
   }).join('');
 
@@ -847,7 +895,7 @@ async function submitPayment() {
     const orderData = {
       items: cart.map(c => {
         const p = PRODUCTS.find(x => x.id === c.id);
-        return { id: p.id, name: p.name_hu, format: p.format, qty: c.qty, price: p.price };
+        return { id: p.id, name: p.name_hu, format: p.format, qty: c.qty, price: getEffectivePrice(p) };
       }),
       customer: { firstName, lastName, email, address, city, zip, country },
       shipping: getShipping(),

@@ -323,6 +323,19 @@ function stockBadge(stock) {
   return `<span class="stock-badge-ok">● ${stock} db</span>`;
 }
 
+function discountDisplay(discount) {
+  if (!discount) return '<span style="color:#555;">—</span>';
+  const label = discount.type === 'percent' ? `-${discount.value}%` : `-${discount.value.toLocaleString('hu-HU')} Ft`;
+  return `<span style="color:#CF6679;font-weight:600;">${label}</span>`;
+}
+
+function calcDiscounted(price, discount) {
+  if (!discount) return null;
+  if (discount.type === 'percent') return Math.round(price * (1 - discount.value / 100));
+  if (discount.type === 'fixed')   return Math.max(0, price - discount.value);
+  return null;
+}
+
 function renderStock() {
   if (!allProducts.length) {
     document.getElementById('stockContainer').innerHTML = '<div class="empty-state">Nincsenek termékek.</div>';
@@ -336,23 +349,40 @@ function renderStock() {
         <th>Termék</th>
         <th>Kiszerelés</th>
         <th>Ár (Ft)</th>
+        <th>Kedvezmény</th>
+        <th>Akciós ár</th>
         <th>Készlet</th>
-        <th>Módosítás</th>
+        <th>Műveletek</th>
       </tr></thead>
       <tbody>
-        ${allProducts.map(p => `
+        ${allProducts.map(p => {
+          const discPrice = calcDiscounted(p.price, p.discount);
+          return `
           <tr id="stock-row-${p.id}">
             <td style="color:#555;">${p.id}</td>
             <td>${p.brand}</td>
             <td style="color:var(--white);">${p.name_hu}</td>
             <td>${p.format}</td>
             <td style="color:var(--gold);">${p.price.toLocaleString('hu-HU')} Ft</td>
-            <td>${stockBadge(p.stock)}</td>
-            <td>
-              <input class="stock-input" type="number" min="0" id="stock-val-${p.id}" value="${p.stock}">
-              <button class="stock-save-btn" onclick="saveStock(${p.id})">Mentés</button>
+            <td id="disc-cell-${p.id}">${discountDisplay(p.discount)}</td>
+            <td id="disc-price-cell-${p.id}" style="color:#CF6679;">
+              ${discPrice !== null ? discPrice.toLocaleString('hu-HU') + ' Ft' : '—'}
             </td>
-          </tr>`).join('')}
+            <td id="stock-cell-${p.id}">${stockBadge(p.stock)}</td>
+            <td style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+              <input class="stock-input" type="number" min="0" id="stock-val-${p.id}" value="${p.stock}" style="width:60px;">
+              <button class="stock-save-btn" onclick="saveStock(${p.id})">Készlet</button>
+              <select class="stock-input" id="disc-type-${p.id}" style="width:80px;padding:4px 4px;">
+                <option value="percent" ${p.discount && p.discount.type==='percent' ? 'selected' : ''}>%</option>
+                <option value="fixed"   ${p.discount && p.discount.type==='fixed'   ? 'selected' : ''}>Ft</option>
+              </select>
+              <input class="stock-input" type="number" min="0" id="disc-val-${p.id}"
+                value="${p.discount ? p.discount.value : ''}" placeholder="0" style="width:60px;">
+              <button class="stock-save-btn" onclick="saveDiscount(${p.id})">Akció</button>
+              ${p.discount ? `<button class="stock-save-btn" onclick="removeDiscount(${p.id})" style="border-color:rgba(207,102,121,0.5);color:#CF6679;">✕</button>` : ''}
+            </td>
+          </tr>`;
+        }).join('')}
       </tbody>
     </table>
   `;
@@ -369,13 +399,53 @@ async function saveStock(productId) {
       body: JSON.stringify({ stock: newStock })
     });
     if (!res.ok) throw new Error();
-    // Update local data and re-render badge
     const p = allProducts.find(x => x.id === productId);
     if (p) p.stock = newStock;
-    const row = document.getElementById(`stock-row-${productId}`);
-    if (row) row.cells[5].innerHTML = stockBadge(newStock);
+    document.getElementById(`stock-cell-${productId}`).innerHTML = stockBadge(newStock);
     input.style.borderColor = '#4CAF50';
     setTimeout(() => input.style.borderColor = '', 1500);
+  } catch(e) {
+    alert('Mentési hiba – ellenőrizd a kapcsolatot.');
+  }
+}
+
+async function saveDiscount(productId) {
+  const type  = document.getElementById(`disc-type-${productId}`).value;
+  const value = parseFloat(document.getElementById(`disc-val-${productId}`).value);
+  if (isNaN(value) || value <= 0) { alert('Add meg a kedvezmény értékét!'); return; }
+  if (type === 'percent' && value > 100) { alert('A százalék nem lehet több 100-nál!'); return; }
+  const p = allProducts.find(x => x.id === productId);
+  if (type === 'fixed' && p && value >= p.price) { alert('A fix kedvezmény nem lehet nagyobb az árnál!'); return; }
+  try {
+    const res = await fetch(`${API}/admin/products/${productId}/discount`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+      body: JSON.stringify({ discount: { type, value } })
+    });
+    if (!res.ok) throw new Error();
+    if (p) p.discount = { type, value };
+    const discPrice = calcDiscounted(p.price, p.discount);
+    document.getElementById(`disc-cell-${productId}`).innerHTML = discountDisplay(p.discount);
+    document.getElementById(`disc-price-cell-${productId}`).innerHTML =
+      discPrice !== null ? `<span style="color:#CF6679;">${discPrice.toLocaleString('hu-HU')} Ft</span>` : '—';
+    // Refresh row to show ✕ button
+    renderStock();
+  } catch(e) {
+    alert('Mentési hiba – ellenőrizd a kapcsolatot.');
+  }
+}
+
+async function removeDiscount(productId) {
+  try {
+    const res = await fetch(`${API}/admin/products/${productId}/discount`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+      body: JSON.stringify({ discount: null })
+    });
+    if (!res.ok) throw new Error();
+    const p = allProducts.find(x => x.id === productId);
+    if (p) p.discount = null;
+    renderStock();
   } catch(e) {
     alert('Mentési hiba – ellenőrizd a kapcsolatot.');
   }

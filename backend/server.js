@@ -399,6 +399,31 @@ app.patch('/admin/products/:id/stock', (req, res) => {
   res.json(product);
 });
 
+// ADMIN — update discount for a product
+// Body: { discount: null }  →  removes discount
+// Body: { discount: { type: "percent", value: 20 } }  →  20% off
+// Body: { discount: { type: "fixed",   value: 500 } }  →  500 Ft off
+app.patch('/admin/products/:id/discount', (req, res) => {
+  const key = req.headers['x-admin-key'];
+  if (key !== process.env.ADMIN_KEY) return res.status(401).json({ error: 'Unauthorized' });
+  const products = loadProducts();
+  const product = products.find(p => p.id === parseInt(req.params.id));
+  if (!product) return res.status(404).json({ error: 'Product not found' });
+  const { discount } = req.body;
+  if (discount === null || discount === undefined) {
+    product.discount = null;
+  } else {
+    const { type, value } = discount;
+    if (!['percent', 'fixed'].includes(type)) return res.status(400).json({ error: 'type must be percent or fixed' });
+    if (typeof value !== 'number' || value <= 0) return res.status(400).json({ error: 'Invalid discount value' });
+    if (type === 'percent' && value > 100) return res.status(400).json({ error: 'Percent cannot exceed 100' });
+    product.discount = { type, value };
+  }
+  saveProducts(products);
+  console.log(`🏷️  Discount updated: product ${product.id} →`, product.discount);
+  res.json(product);
+});
+
 // CREATE PAYMENT INTENT
 app.post('/api/create-payment-intent', async (req, res) => {
   try {
