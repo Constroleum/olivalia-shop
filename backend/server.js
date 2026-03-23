@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 const { createObjectCsvWriter } = require('csv-writer');
 const fs = require('fs');
 const path = require('path');
@@ -46,14 +47,15 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
       // Email to customer
       try {
-        await transporter.sendMail({
-          from: `"OLIVALIA" <${process.env.GMAIL_USER}>`,
+        const { error } = await resend.emails.send({
+          from: 'OLIVALIA <onboarding@resend.dev>',
           to: order.customer.email,
           subject: lang === 'hu'
             ? `🫒 Rendelés visszaigazolás — ${order.orderId}`
             : `🫒 Order Confirmation — ${order.orderId}`,
           html: buildCustomerEmail(order, lang)
         });
+        if (error) throw new Error(error.message);
         console.log(`✅ Customer email sent to ${order.customer.email}`);
       } catch (mailErr) {
         console.error('❌ Customer email failed:', mailErr.message);
@@ -62,12 +64,13 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
       // Email to admin
       try {
         const adminMail = buildAdminEmail(order);
-        await transporter.sendMail({
-          from: `"OLIVALIA Shop" <${process.env.GMAIL_USER}>`,
+        const { error } = await resend.emails.send({
+          from: 'OLIVALIA Shop <onboarding@resend.dev>',
           to: 'constroleum@gmail.com',
           subject: adminMail.subject,
           html: adminMail.html
         });
+        if (error) throw new Error(error.message);
         console.log('✅ Admin email sent');
       } catch (mailErr) {
         console.error('❌ Admin email failed:', mailErr.message);
@@ -101,15 +104,6 @@ function generateOrderId() {
   const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
   return `OLV-${y}${m}${d}-${rand}`;
 }
-
-// ─── EMAIL TRANSPORTER (Gmail) ────────────────────────────────────────────────
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,     // constroleum@gmail.com
-    pass: process.env.GMAIL_APP_PASS  // Google App Password (not account password)
-  }
-});
 
 // ─── EMAIL TEMPLATES ──────────────────────────────────────────────────────────
 function buildCustomerEmail(order, lang = 'hu') {
@@ -458,17 +452,9 @@ app.get('/health', (req, res) => res.json({ status: 'ok', time: new Date().toISO
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🫒 OLIVALIA backend running on port ${PORT}`);
-
-  // Verify email credentials on startup so misconfiguration is caught immediately
-  transporter.verify((err) => {
-    if (err) {
-      console.error('❌ EMAIL CONFIG ERROR — emails will NOT send:', err.message);
-      console.error('   Check GMAIL_USER and GMAIL_APP_PASS env vars in Render.');
-      console.error('   GMAIL_APP_PASS must be a 16-char Google App Password,');
-      console.error('   NOT your regular Gmail password.');
-      console.error('   Generate one at: https://myaccount.google.com/apppasswords');
-    } else {
-      console.log('✅ Email transporter ready — Gmail connection OK');
-    }
-  });
+  if (!process.env.RESEND_API_KEY) {
+    console.error('❌ EMAIL CONFIG ERROR — RESEND_API_KEY not set. Emails will NOT send.');
+  } else {
+    console.log('✅ Resend API key found — email ready');
+  }
 });
