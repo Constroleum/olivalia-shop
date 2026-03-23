@@ -368,10 +368,11 @@ app.post('/api/create-payment-intent', async (req, res) => {
     const orderId = generateOrderId();
     const isHUF = currency === 'HUF';
 
-    // Stripe expects amount in smallest currency unit (fillér/cent)
+    // Stripe expects amount in smallest currency unit.
+    // HUF: 1 Ft = 100 fillér, so multiply by 100 like EUR cents.
     let amountCents;
     if (isHUF) {
-      amountCents = Math.round(total); // HUF has no decimals, Stripe accepts whole HUF
+      amountCents = Math.round(total) * 100; // 49290 Ft → 4929000 fillér
     } else {
       amountCents = Math.round(parseFloat(total) * 100); // EUR → cents
     }

@@ -810,7 +810,7 @@ function initStripe() {
   const total = getCartTotal() + getShipping();
   const pr = stripe.paymentRequest({
     country: 'HU', currency: 'huf',
-    total: { label: 'OLIVALIA Rendelés', amount: total },
+    total: { label: 'OLIVALIA Rendelés', amount: total * 100 }, // fillér
     requestPayerName: true, requestPayerEmail: true,
   });
   const prButton = elements.create('paymentRequestButton', { paymentRequest: pr, style: { paymentRequestButton: { theme: 'dark', height: '44px' } } });
