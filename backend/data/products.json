@@ -11,7 +11,9 @@
     "stock": 10,
     "emoji": "🫙",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa kooperatíva prémium extra szűz olívaolaja. Friss, zöld gyümölcsös aromák, finom keserűség és pikantéria jellemzi.",
+    "desc_en": "Oleoestepa cooperative premium extra virgin olive oil. Fresh green fruity aromas with elegant bitterness and spiciness."
   },
   {
     "id": 2,
@@ -25,7 +27,9 @@
     "stock": 10,
     "emoji": "🫙",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa kooperatíva prémium extra szűz olívaolaja gazdaságos kiszerelésben. Tökéletes mindennapi főzéshez.",
+    "desc_en": "Oleoestepa cooperative premium extra virgin olive oil in an economical size. Perfect for everyday cooking."
   },
   {
     "id": 3,
@@ -39,7 +43,9 @@
     "stock": 10,
     "emoji": "🫙",
     "badge": "Legjobb ár/liter",
-    "discount": null
+    "discount": null,
+    "desc_hu": "Nagycsalád méret – Oleoestepa EVOO gazdaságos 5 literes kiszerelésben.",
+    "desc_en": "Family size — Oleoestepa EVOO in an economical 5-litre container."
   },
   {
     "id": 4,
@@ -53,7 +59,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa Selección – válogatott fajta keverék, harmonikus ízprofillal. Ajándéknak is tökéletes.",
+    "desc_en": "Oleoestepa Selección — a selected variety blend with a harmonious flavour profile. Perfect as a gift too."
   },
   {
     "id": 5,
@@ -67,7 +75,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa Selección – válogatott fajta keverék. Ideális asztali olaj, salátákhoz és kenyér mártogatáshoz.",
+    "desc_en": "Oleoestepa Selección — a selected variety blend. Ideal table oil for salads and bread dipping."
   },
   {
     "id": 6,
@@ -81,7 +91,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa Selección – a márka emblematikus keveréke 500ml üvegben. Friss zöld jegyek, finom fűszeres befejezés.",
+    "desc_en": "Oleoestepa Selección — the brand's iconic blend in a 500ml bottle. Fresh green notes, fine spicy finish."
   },
   {
     "id": 7,
@@ -95,7 +107,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa Selección prémium 750ml-es üvegben. Tökéletes ajándék vagy különleges alkalmakra.",
+    "desc_en": "Oleoestepa Selección premium 750ml bottle. Perfect gift or for special occasions."
   },
   {
     "id": 8,
@@ -109,7 +123,9 @@
     "stock": 10,
     "emoji": "🥫",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa Selección hagyományos spanyol fémdobozban. Kiváló fény- és hővédelme megőrzi az olaj frissességét.",
+    "desc_en": "Oleoestepa Selección in a traditional Spanish tin. Excellent light and heat protection keeps oil fresh."
   },
   {
     "id": 9,
@@ -123,7 +139,9 @@
     "stock": 10,
     "emoji": "🥫",
     "badge": "Legjobb ár/liter",
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa Selección 5L fémdoboz – a legtakarékosabb megoldás a minőség kompromisszuma nélkül.",
+    "desc_en": "Oleoestepa Selección 5L tin — the most economical solution without compromising quality."
   },
   {
     "id": 10,
@@ -137,7 +155,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Hojiblanca – az Oleoestepa régiójának jellegzetes fajtája. Harmonikus, enyhén fűszeres, mandulás jegyekkel.",
+    "desc_en": "Hojiblanca — the characteristic variety of the Oleoestepa region. Harmonious, slightly spicy, almond notes."
   },
   {
     "id": 11,
@@ -151,7 +171,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Hojiblanca szűz szüret – gazdag mandulás és édes paradicsomos jegyek, enyhén keserű befejezéssel.",
+    "desc_en": "Hojiblanca virgin harvest — rich almond and sweet tomato notes with a slightly bitter finish."
   },
   {
     "id": 12,
@@ -165,7 +187,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Hojiblanca 750ml prémium üveg. A Hojiblanca fajta legjobb tulajdonságai: elegáns, édes jegyekkel.",
+    "desc_en": "Hojiblanca 750ml premium bottle. The best qualities of the Hojiblanca variety: elegant, sweet notes."
   },
   {
     "id": 13,
@@ -179,7 +203,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Arbequina – az egyik legnépszerűbb spanyol fajta. Gyümölcsös, enyhe mandulás és vajas jegyek.",
+    "desc_en": "Arbequina — one of the most popular Spanish varieties. Fruity, with mild almond and buttery notes."
   },
   {
     "id": 14,
@@ -193,7 +219,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": "Bio",
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa BIO extra szűz olívaolaj. Tanúsított ökológiai gazdálkodásból, vegyszermentes, természetes feldolgozással.",
+    "desc_en": "Oleoestepa Organic extra virgin olive oil. Certified organic farming, pesticide-free, natural processing."
   },
   {
     "id": 15,
@@ -207,7 +235,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": "Bio",
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa BIO extra szűz olívaolaj 500ml üvegben. Tanúsított ökológiai gazdálkodásból.",
+    "desc_en": "Oleoestepa Organic extra virgin olive oil in a 500ml bottle. Certified organic farming."
   },
   {
     "id": 16,
@@ -221,7 +251,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": "Prémium",
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa Premium – a legmagasabb minőségű, korai szüretelésű extra szűz olívaolaj. Intenzív zöld gyümölcsös karakter.",
+    "desc_en": "Oleoestepa Premium — the highest quality early-harvest extra virgin olive oil. Intense green fruity character."
   },
   {
     "id": 17,
@@ -235,7 +267,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": "Prémium",
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa Premium 500ml – díjnyertes olaj, intenzív fűszeres jegyekkel és hosszan tartó befejezéssel.",
+    "desc_en": "Oleoestepa Premium 500ml — award-winning oil with intense spicy notes and a long finish."
   },
   {
     "id": 18,
@@ -249,7 +283,9 @@
     "stock": 10,
     "emoji": "🎁",
     "badge": "Ajándék",
-    "discount": null
+    "discount": null,
+    "desc_hu": "Oleoestepa Premium 500ml elegáns díszdobozban – tökéletes ajándék ínyenceknek és különleges alkalmakra.",
+    "desc_en": "Oleoestepa Premium 500ml in an elegant gift box — perfect gift for gourmets and special occasions."
   },
   {
     "id": 19,
@@ -263,7 +299,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": "Top",
-    "discount": null
+    "discount": null,
+    "desc_hu": "Egregio – Oleoestepa flagship terméke. A korai szüret és a gondos feldolgozás kivételes, komplex ízprofilt eredményez.",
+    "desc_en": "Egregio — Oleoestepa flagship product. Early harvest and careful processing produce an exceptional, complex flavour profile."
   },
   {
     "id": 20,
@@ -277,7 +315,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Mas Notari – La Gramanosa emblematikus Arbequina olívaolaja. Katalóniából, bio termelőtől. Lágy, gyümölcsös, mandulavirágos jegyekkel.",
+    "desc_en": "Mas Notari — La Gramanosa's emblematic Arbequina olive oil. From Catalonia, organic producer. Soft, fruity, almond blossom notes."
   },
   {
     "id": 21,
@@ -291,7 +331,9 @@
     "stock": 10,
     "emoji": "🫙",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "La Gramanosa Mas Notari Arbequina 2L – prémium katalán Arbequina, gazdaságos kiszerelésben.",
+    "desc_en": "La Gramanosa Mas Notari Arbequina 2L — premium Catalan Arbequina in an economical size."
   },
   {
     "id": 22,
@@ -305,7 +347,9 @@
     "stock": 10,
     "emoji": "🫙",
     "badge": "Legjobb ár/liter",
-    "discount": null
+    "discount": null,
+    "desc_hu": "La Gramanosa Mas Notari 5L – a legtöbb díjat nyert katalán Arbequina nagy kiszerelésben.",
+    "desc_en": "La Gramanosa Mas Notari 5L — the most award-winning Catalan Arbequina in a large size."
   },
   {
     "id": 23,
@@ -319,7 +363,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "La Gramanosa Arbequina – friss, virágos jegyek, finom vajas befejezés. A katalán kézműves termelés büszkesége.",
+    "desc_en": "La Gramanosa Arbequina — fresh, floral notes, fine buttery finish. The pride of Catalan artisan production."
   },
   {
     "id": 24,
@@ -333,7 +379,9 @@
     "stock": 10,
     "emoji": "🫙",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Savouidakis Liolado – görög szűz olívaolaj Krétáról. A hagyományos görög konyha nélkülözhetetlen alapanyaga.",
+    "desc_en": "Savouidakis Liolado — Greek virgin olive oil from Crete. An indispensable ingredient of traditional Greek cuisine."
   },
   {
     "id": 25,
@@ -347,7 +395,9 @@
     "stock": 10,
     "emoji": "🫙",
     "badge": null,
-    "discount": null
+    "discount": null,
+    "desc_hu": "Savouidakis EVOO Liolado – kréta extra szűz olívaolaj. Zöld olajbogyó aromák, fű és gyógynövényes jegyek.",
+    "desc_en": "Savouidakis EVOO Liolado — Cretan extra virgin olive oil. Green olive aromas, grass and herbal notes."
   },
   {
     "id": 26,
@@ -361,7 +411,9 @@
     "stock": 10,
     "emoji": "🍾",
     "badge": "Díjnyertes",
-    "discount": null
+    "discount": null,
+    "desc_hu": "Savouidakis EVOO LOF – díjnyertes görög extra szűz olívaolaj. Intenzív gyümölcsös karakter, articsókás és fűszernövényes jegyekkel.",
+    "desc_en": "Savouidakis EVOO LOF — award-winning Greek extra virgin olive oil. Intense fruity character, artichoke and herbal notes."
   },
   {
     "id": 27,
@@ -375,7 +427,9 @@
     "stock": 10,
     "emoji": "🥫",
     "badge": "PDO",
-    "discount": null
+    "discount": null,
+    "desc_hu": "PDO Messara tanúsítású kréta olívaolaj – Görögország egyik legelismertebb eredetvédelmi olaja. Kivételes minőség és terroir.",
+    "desc_en": "PDO Messara certified Cretan olive oil — one of Greece's most renowned protected designation of origin oils."
   },
   {
     "id": 28,
@@ -389,7 +443,9 @@
     "stock": 10,
     "emoji": "🥫",
     "badge": "PDO",
-    "discount": null
+    "discount": null,
+    "desc_hu": "PDO Messara 5L – a legjobb kréta olívaolaj nagycsalád méretben. Kivételes ár/érték arány.",
+    "desc_en": "PDO Messara 5L — the finest Cretan olive oil in family size. Exceptional value."
   },
   {
     "id": 29,
@@ -403,7 +459,9 @@
     "stock": 10,
     "emoji": "🥫",
     "badge": "PDO",
-    "discount": null
+    "discount": null,
+    "desc_hu": "PDO Sitia – Kréta keleti csücskének különleges olaja. Korsaki (Koroneiki) fajtából, alacsony savassággal és páratlan ízzel.",
+    "desc_en": "PDO Sitia — the exceptional oil from eastern Crete. Koroneiki variety, low acidity and unparalleled flavour."
   },
   {
     "id": 30,
@@ -417,6 +475,8 @@
     "stock": 10,
     "emoji": "🥫",
     "badge": "Bio",
-    "discount": null
+    "discount": null,
+    "desc_hu": "Savouidakis BIO extra szűz olívaolaj – tanúsított ökológiai termelés Krétáról. Vegyszermentes, természetes ízek.",
+    "desc_en": "Savouidakis Organic EVOO — certified organic production from Crete. Pesticide-free, natural flavours."
   }
 ]
