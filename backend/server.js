@@ -14,6 +14,8 @@ app.use(cors({
     process.env.FRONTEND_URL,
     'https://constroleum.github.io',
     /\.github\.io$/,
+    'https://olivalia.hu',
+    'https://www.olivalia.hu',
     'http://localhost:3000',
     'http://127.0.0.1:5500'
   ],

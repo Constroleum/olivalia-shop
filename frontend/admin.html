@@ -292,7 +292,7 @@ async function updateStatus(orderId, newStatus) {
 }
 
 async function exportCSV() {
-  window.open(`https://olivalia-shop.onrender.com/admin/export-csv?key=${adminKey}`, '_blank');
+  window.open(`${API}/admin/export-csv?key=${adminKey}`, '_blank');
 }
 
 // ── TAB NAVIGATION ────────────────────────────────────────────────────────────
