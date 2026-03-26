@@ -150,9 +150,17 @@ const API = 'https://olivalia-shop.onrender.com';
 async function login() {
   const key = document.getElementById('adminKey').value;
   if (!key) return;
+  const errDiv = document.getElementById('loginError');
+  errDiv.textContent = 'Kapcsolódás...';
   try {
-    const res = await fetch(`${API}/admin/orders`, { headers: { 'x-admin-key': key } });
-    if (!res.ok) { document.getElementById('loginError').textContent = 'Érvénytelen jelszó'; return; }
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    const res = await fetch(`${API}/admin/orders`, {
+      headers: { 'x-admin-key': key },
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (!res.ok) { errDiv.textContent = 'Érvénytelen jelszó'; return; }
     adminKey = key;
     sessionStorage.setItem('olivalia_admin', key);
     document.getElementById('loginScreen').style.display = 'none';
@@ -160,7 +168,17 @@ async function login() {
     allOrders = await res.json();
     renderStats();
     renderOrders();
-  } catch { document.getElementById('loginError').textContent = 'Kapcsolódási hiba'; }
+  } catch (err) {
+    const errDiv = document.getElementById('loginError');
+    if (err.name === 'AbortError') {
+      errDiv.innerHTML = 'Időtúllépés – a szerver elindul (Render cold start).<br><span style="font-size:10px">Várj 30 másodpercet és próbáld újra.</span>';
+    } else if (err instanceof TypeError) {
+      errDiv.innerHTML = 'Kapcsolódási hiba – ellenőrizd, hogy a backend fut-e.<br><span style="font-size:10px">Próbáld meg: <a href="' + API + '/admin/orders" target="_blank" style="color:var(--gold)">backend tesztelése</a></span>';
+    } else {
+      errDiv.textContent = 'Hiba: ' + err.message;
+    }
+    console.error('Login error:', err);
+  }
 }
 
 function logout() {
